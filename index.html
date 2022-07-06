@@ -1,12 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>bbptest</title>
-</head>
-<body>
-    bbptest
-</body>
+    <style>
+      label {
+        display: block;
+        margin: 5px;
+      }
+
+      label > span {
+        width: 180px;
+        display: inline-block;
+      }
+
+      label > input {
+        width: 380px;
+        /* display: inline-block; */
+      }
+    </style>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
+      integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.11.0/qs.min.js"
+      integrity="sha512-/l6vieC+YxaZywUhmqs++8uF9DeMvJE61ua5g+UK0TuHZ4TkTgB1Gm1n0NiA86uEOM9JJ6JUwyR0hboKO0fCng=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+  <body>
+    <h2>USDT 代付</h2>
+
+    <!-- <form 
+    action="https://qa.xinbbpayment.com/v1/transfer/pay" 
+    method="post"> -->
+    <form onsubmit="return formsubmit()">
+      <label
+        ><span>金額 usdt:</span>
+        <input type="text" name="amount" value="50" />
+      </label>
+
+      <label
+        ><span>地址:</span>
+        <input
+          type="text"
+          name="bank_card_number"
+          placeholder="0x9bb964Dd570401529E829a1C2223Fec4545F27a6"
+          value=""
+        />
+      </label>
+
+      <label
+        ><span>類型:</span>
+        <input type="text" name="bank" value="USDT_ERC20" />
+      </label>
+
+      <label
+        ><span>bank_card_holder:</span>
+        <input type="text" name="bank_card_holder" value="黄三岁" />
+      </label>
+
+      <label
+        ><span>bank_card_branch:</span>
+        <input type="text" name="bank_card_holder" value="大馒头银行" />
+      </label>
+
+      <hr />
+      <div>工程師填寫</div>
+
+      <label
+        ><span>商戶:</span>
+        <input type="text" name="merchant" value="M00018" />
+      </label>
+
+      <label
+        ><span>notify_url:</span>
+        <input
+          type="text"
+          name="notify_url"
+          value="https://hannahtest.000webhostapp.com/pay/getRequest.php"
+        />
+      </label>
+
+      <label
+        ><span>key:</span>
+        <input
+          type="text"
+          name="key"
+          value="3f3ab69fc80e191a0e08c5b6d2acf3b458e8aaea"
+        />
+      </label>
+
+      <label
+        ><span>transfer_token:</span>
+        <input
+          type="text"
+          name="transfer_token"
+          value="0f4bb58c393e503dfcbeef7bb4a436a6eda88f5947fda1386ba408d4b96da1b2"
+        />
+      </label>
+
+      <input type="submit" value="送出" />
+    </form>
+  </body>
+
+  <script>
+    function alphabeticalSort(a, b) {
+      return a.localeCompare(b);
+    }
+
+    function formsubmit(params) {
+      const formData = new FormData(document.querySelector("form"));
+      const obj = Object.fromEntries(formData.entries());
+
+      let { key, transfer_token, ...data } = obj;
+
+      var sign =
+        Qs.stringify(data, { encode: false, sort: alphabeticalSort }) +
+        Qs.stringify({ key, transfer_token }, { encode: false });
+
+      console.log(CryptoJS.MD5(sign).toString());
+
+      data['sign'] = sign
+
+      //   for (const [key, value] of Object.entries(obj)) {
+      //     console.log(`${key}: ${value}`);
+      //   }
+      //   console.log(`========================`);
+
+      //   for (var pair of formData.entries()) {
+      //     console.log(pair[0] + ": " + pair[1]);
+      //   }
+
+      let pf = fetch('https://qa.xinbbpayment.com/v1/transfer/pay', {
+            method: 'POST',
+            body: Qs.stringify(data),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+            },
+            // credentials: 'same-origin',
+        });
+
+      return false;
+    }
+  </script>
 </html>
+
+<!-- 
+<?php
+$time = date('YmdHis', time() + 8 * 3600);
+$id = $time . rand(0, 99999);
+
+$encodeData = [
+    'merchant' => 'M00018',
+    'order_id' => $id,
+    'amount' => 50,
+    'bank' => 'USDT_ERC20',
+    'bank_card_holder' => '黄三岁',
+    'bank_card_number' => '0x82133D0B08225340b3De60821e0971c9398C5225',
+    'bank_card_branch' => '大馒头银行',
+    'notify_url' => 'https://hannahtest.000webhostapp.com/pay/getRequest.php',
+];
+
+$param = $encodeData;
+
+ksort($encodeData);
+
+$encodeData['key'] = '3f3ab69fc80e191a0e08c5b6d2acf3b458e8aaea';
+$encodeData['transfer_token'] = '0f4bb58c393e503dfcbeef7bb4a436a6eda88f5947fda1386ba408d4b96da1b2';
+
+$param['sign'] = md5(urldecode(http_build_query($encodeData)));
+
+$ch = curl_init();
+
+curl_setopt($ch, CURLOPT_URL, 'https://qa.xinbbpayment.com/v1/transfer/pay');
+curl_setopt($ch, CURLOPT_HEADER, false);
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($param));
+
+$temp = curl_exec($ch);
+
+curl_close($ch);
+
+var_dump($temp); -->
